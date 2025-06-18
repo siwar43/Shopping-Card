@@ -1,64 +1,60 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const heartButtons = document.querySelectorAll('.like');
-    const plusButtons = document.querySelectorAll('.plus-btn');
-    const minusButtons = document.querySelectorAll('.minus-btn');
-    const totalPriceInput = document.getElementById('finalPrice');
+var items = document.querySelectorAll('.Item');
+var totalPriceInput = document.getElementById('finalPrice');
 
-    const items = document.querySelectorAll('.Item');
-    const unitPrices = Array.from(items).map(item => {
-        const priceElement = item.querySelector('.price');
-        return parseFloat(priceElement.textContent.trim()) || 0;
-    });
+// Stockage des prix unitaires
+var unitPrices = [];
+for (var i = 0; i < items.length; i++) {
+    var priceElement = items[i].querySelector('.price');
+    unitPrices[i] = parseFloat(priceElement.textContent.trim()) || 0;
+}
 
-    // Function to update the prices
-    function updatePrices() {
-        let total = 0;
-        items.forEach((item, index) => {
-            const quantityInput = item.querySelector('.Quant');
-            const priceElement = item.querySelector('.price');
-            const quantity = parseInt(quantityInput.value.trim()) || 0;
-            const itemPrice = quantity * unitPrices[index];
-            priceElement.textContent = itemPrice.toFixed(2);
-            total += itemPrice;
-        });
-        totalPriceInput.value = total.toFixed(2);
+// Fonction pour mettre à jour les prix
+function updatePrices() {
+    var total = 0;
+    for (var i = 0; i < items.length; i++) {
+        var quantityInput = items[i].querySelector('.Quant');
+        var priceElement = items[i].querySelector('.price');
+        var quantity = parseInt(quantityInput.value.trim()) || 0;
+        var itemPrice = quantity * unitPrices[i];
+        priceElement.textContent = itemPrice.toFixed(2);
+        total += itemPrice;
     }
+    totalPriceInput.value = total.toFixed(2);
+}
 
-    // Heart button 
-    heartButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const icon = button.querySelector('i');
-            if (icon.style.color === 'red') {
-                icon.style.color = 'black';
-            } else {
-                icon.style.color = 'red';
-            }
-        });
+// Gestion des boutons cœur
+for (var i = 0; i < items.length; i++) {
+    var heartButton = items[i].querySelector('.like');
+    heartButton.addEventListener('click', function() {
+        var icon = this.querySelector('i');
+        icon.style.color = icon.style.color === 'red' ? 'black' : 'red';
     });
+}
 
-    // Plus button 
-    plusButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const quantityInput = button.parentElement.querySelector('.Quant');
-            let quantity = parseInt(quantityInput.value.trim()) || 0;
-            quantity++;
+// Gestion des boutons plus
+for (var i = 0; i < items.length; i++) {
+    var plusButton = items[i].querySelector('.plus-btn');
+    plusButton.addEventListener('click', function() {
+        var quantityInput = this.parentElement.querySelector('.Quant');
+        var quantity = parseInt(quantityInput.value.trim()) || 0;
+        quantity++;
+        quantityInput.value = quantity;
+        updatePrices();
+    });
+}
+
+// Gestion des boutons moins
+for (var i = 0; i < items.length; i++) {
+    var minusButton = items[i].querySelector('.minus-btn');
+    minusButton.addEventListener('click', function() {
+        var quantityInput = this.parentElement.querySelector('.Quant');
+        var quantity = parseInt(quantityInput.value.trim()) || 0;
+        if (quantity > 1) {
+            quantity--;
             quantityInput.value = quantity;
-            updatePrices();
-        });
+        }
+        updatePrices();
     });
+}
 
-    // Minus button
-    minusButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const quantityInput = button.parentElement.querySelector('.Quant');
-            let quantity = parseInt(quantityInput.value.trim()) || 0;
-            if (quantity > 1) {
-                quantity--;
-                quantityInput.value = quantity;
-            }
-            updatePrices();
-        });
-    });
-
-    updatePrices();
-});
+updatePrices();
