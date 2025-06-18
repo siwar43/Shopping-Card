@@ -1,60 +1,70 @@
-var items = document.querySelectorAll('.Item');
-var totalPriceInput = document.getElementById('finalPrice');
+let likeBtn = document.getElementsByClassName("like");
+let plusBtn = document.getElementsByClassName("plus-btn");
+let minusBtn = document.getElementsByClassName("minus-btn");
+let deleteBtns = document.getElementsByClassName("delete");
 
-// Stockage des prix unitaires
-var unitPrices = [];
-for (var i = 0; i < items.length; i++) {
-    var priceElement = items[i].querySelector('.price');
-    unitPrices[i] = parseFloat(priceElement.textContent.trim()) || 0;
+// Heart button click event
+for (let i = 0; i < likeBtn.length; i++) {
+    likeBtn[i].addEventListener("click", function () {
+        if (likeBtn[i].firstChild.style.color === "red") {
+            likeBtn[i].firstChild.style.color = "black"; // Passing from red to black 
+        } else {
+            likeBtn[i].firstChild.style.color = "red"; // Passing from black to red
+        }
+    });
 }
 
-// Fonction pour mettre à jour les prix
-function updatePrices() {
-    var total = 0;
-    for (var i = 0; i < items.length; i++) {
-        var quantityInput = items[i].querySelector('.Quant');
-        var priceElement = items[i].querySelector('.price');
-        var quantity = parseInt(quantityInput.value.trim()) || 0;
-        var itemPrice = quantity * unitPrices[i];
+// function for updating price
+function updateTotal() {
+    let items = document.getElementsByClassName("Item");
+    let total = 0;
+
+    for (let i = 0; i < items.length; i++) {
+        let priceElement = items[i].querySelector(".price");
+        let quantityElement = items[i].querySelector(".Quant");
+        
+        let initialPrice = parseFloat(priceElement.getAttribute("data-base-price") || priceElement.textContent);
+        if (!priceElement.getAttribute("data-base-price")) {
+            priceElement.setAttribute("data-base-price", initialPrice.toFixed(2));
+        }
+        
+        let quantity = parseInt(quantityElement.value);
+        let itemPrice = initialPrice * quantity; // Calculate article price
         priceElement.textContent = itemPrice.toFixed(2);
+        // Adding to the total
         total += itemPrice;
     }
-    totalPriceInput.value = total.toFixed(2);
+    // Updating the total price 
+    document.getElementById("finalPrice").value = total.toFixed(2);
 }
 
-// Gestion des boutons cœur
-for (var i = 0; i < items.length; i++) {
-    var heartButton = items[i].querySelector('.like');
-    heartButton.addEventListener('click', function() {
-        var icon = this.querySelector('i');
-        icon.style.color = icon.style.color === 'red' ? 'black' : 'red';
+// Plus button click event
+for (let i = 0; i < plusBtn.length; i++) {
+    plusBtn[i].addEventListener("click", function () {
+        plusBtn[i].previousElementSibling.value++;
+        updateTotal(); 
     });
 }
 
-// Gestion des boutons plus
-for (var i = 0; i < items.length; i++) {
-    var plusButton = items[i].querySelector('.plus-btn');
-    plusButton.addEventListener('click', function() {
-        var quantityInput = this.parentElement.querySelector('.Quant');
-        var quantity = parseInt(quantityInput.value.trim()) || 0;
-        quantity++;
-        quantityInput.value = quantity;
-        updatePrices();
-    });
-}
-
-// Gestion des boutons moins
-for (var i = 0; i < items.length; i++) {
-    var minusButton = items[i].querySelector('.minus-btn');
-    minusButton.addEventListener('click', function() {
-        var quantityInput = this.parentElement.querySelector('.Quant');
-        var quantity = parseInt(quantityInput.value.trim()) || 0;
-        if (quantity > 1) {
-            quantity--;
-            quantityInput.value = quantity;
+// Minus button click event
+for (let i = 0; i < minusBtn.length; i++) {
+    minusBtn[i].addEventListener("click", function () {
+        let input = minusBtn[i].nextElementSibling;
+        if (parseInt(input.value) > 1) { // empêche la valeur de passer en dessous de 1
+            input.value = parseInt(input.value) - 1;
+            updateTotal();
         }
-        updatePrices();
     });
 }
 
-updatePrices();
+// Remove button click event 
+for (let i = 0; i < deleteBtns.length; i++) {
+    deleteBtns[i].addEventListener("click", function () {
+        let item = deleteBtns[i].parentElement;
+        item.remove();
+        updateTotal(); // Mettre à jour le total après suppression
+    });
+}
+
+// Appeler updateTotal au chargement initial
+document.addEventListener("DOMContentLoaded", updateTotal);
